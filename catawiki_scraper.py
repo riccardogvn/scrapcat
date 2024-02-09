@@ -158,7 +158,7 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logg
                                             for x in ccc['props']['pageProps']['auction']['categories']:
                                                 if 'archaeology' in x['title'].lower():
                                                     # objects.append(ccc)
-                                                    print(f'{number}went')
+                                                    logger.info(f'{number} approved')
                                                     objn.add(number)
                                                     time.sleep(sleept)
                                                     try:
@@ -178,7 +178,7 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logg
                                                     break
                                                 elif x['id'] in titlesok:
                                                     # objects.append(ccc)
-                                                    print(f'{number}went')
+                                                    logger.info(f'{number} approved')
                                                     objn.add(number)
                                                     time.sleep(sleept)
                                                     try:
@@ -192,6 +192,7 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logg
                                                         aucy_lots = [x['id'] for x in aucy['results']]
                                                         for aucy_lot in aucy_lots:
                                                             objn.add(aucy_lot)
+                                                            logger.info(f'{number} approved')
                                                     except Exception as e:
                                                         logger.error(f"Error processing auction data: {e}")
                                                         pass
@@ -199,6 +200,7 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logg
                                                 elif x['id'] in titlesnot:
                                                     nobj = number
                                                     pass
+                                                '''
                                                 else:
                                                     print(x['title'])
                                                     print(number)
@@ -230,6 +232,7 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logg
                                                         nobj = number
 
                                                         pass
+                                                '''
                                         except Exception as e:
                                             logger.error(f'Error finding application/json. Id escluded: {e}')
                                             nobj = number
@@ -261,7 +264,7 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logg
                         print(f'\n{nobj} is the last NO \n{list(ob404)[-1]} is the last 404 \n{len(list(SortedSet(objn))[-1])} the last count of YES')
 
                 except Exception as e:
-                    logger.error(f'Skipping: {e}')
+                    logger.error(f'Skipping: {number} for {e}')
                     pass
 
     return objs
