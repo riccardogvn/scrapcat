@@ -8,8 +8,9 @@ from bs4 import BeautifulSoup as bs
 from sortedcontainers import SortedSet
 import logging
 import time
+from datetime import datetime
 from tempfile import NamedTemporaryFile
-from cata_config import LIST_OF_EXPERTS, CATEGORIES_OK, CATEGORIES_NOT_OK, LIST_OF_OBJECTS, DICT_OF_IDS, CATA_LOTS
+from setup.config import LIST_OF_EXPERTS, CATEGORIES_OK, CATEGORIES_NOT_OK, LIST_OF_OBJECTS, DICT_OF_IDS, CATA_LOTS
 
 def cata_soup(category,id,timeout=20,parser='html.parser'):
     soup = bs(requests.get(f'https://catawiki.com/en/{category}/{id}',timeout).content,parser)
@@ -78,7 +79,9 @@ def update_categories(LIST_OF_EXPERTS,CATEGORIES_OK,CATEGORIES_NOT_OK):
     with open(CATEGORIES_NOT_OK,'w') as categories_not_write:
         json.dump(not_interesting_categories, categories_not_write)
 
-def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,max_number=100000000,nonpartial=True,sleept=0.1):
+def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logger,max_number=100000000,nonpartial=True,sleept=0.1):
+
+
     def check_status_code(url,session):
         response = session.head(url, allow_redirects=True, timeout=20)
 
@@ -168,7 +171,8 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,max_
                                                         aucy_lots = [x['id'] for x in aucy['results']]
                                                         for aucy_lot in aucy_lots:
                                                             objn.add(aucy_lot)
-                                                    except:
+                                                    except Exception as e:
+                                                        logger.error(f"Error processing auction data: {e}")
                                                         pass
 
                                                     break
@@ -188,7 +192,8 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,max_
                                                         aucy_lots = [x['id'] for x in aucy['results']]
                                                         for aucy_lot in aucy_lots:
                                                             objn.add(aucy_lot)
-                                                    except:
+                                                    except Exception as e:
+                                                        logger.error(f"Error processing auction data: {e}")
                                                         pass
                                                     break
                                                 elif x['id'] in titlesnot:
@@ -216,7 +221,8 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,max_
                                                             aucy_lots = [x['id'] for x in aucy['results']]
                                                             for aucy_lot in aucy_lots:
                                                                 objn.add(aucy_lot)
-                                                        except:
+                                                        except Exception as e:
+                                                            logger.error(f"Error processing auction data: {e}")
                                                             pass
                                                         break
                                                     else:
@@ -224,10 +230,12 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,max_
                                                         nobj = number
 
                                                         pass
-                                        except:
+                                        except Exception as e:
+                                            logger.error(f'Error finding application/json. Id escluded: {e}')
                                             nobj = number
                                             pass
-                                except:
+                                except Exception as e:
+                                    logger.error(f'Error responding. Id escluded: {e}')
                                     nobj = number
                                     pass
                             else:
@@ -252,10 +260,9 @@ def objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,max_
                     if number % 1000 == 0:
                         print(f'\n{nobj} is the last NO \n{list(ob404)[-1]} is the last 404 \n{len(list(SortedSet(objn))[-1])} the last count of YES')
 
-                except:
+                except Exception as e:
+                    logger.error(f'Skipping: {e}')
                     pass
-
-
 
     return objs
 
@@ -478,6 +485,15 @@ def scrapemore(number,session,nobj,objn,titlesok,titlesnot):
         pass
 
     return number,session,nobj,objn,titlesok,titlesnot
+
+def main():
+    logger = setup_logger(f'logs/run_{datetime.now().strftime("%d_%m_%y_%H_%M_%S ")}.txt')
+    logger.info(f'Starting operation at {datetime.now().strftime("%d/%m/%y %H:%M:%S")}')
+    objects_ids(CATEGORIES_OK,CATEGORIES_NOT_OK,LIST_OF_OBJECTS,DICT_OF_IDS,logger)
+    logger.info(f'Finished processing at {datetime.now().strftime("%d/%m/%y %H:%M:%S")}')
+
+if __name__ == "__main__":
+    main()
 
 
 '''
