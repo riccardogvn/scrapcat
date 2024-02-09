@@ -1,0 +1,4 @@
+2024-02-09 15:55:22 - INFO - Starting operation at 09/02/24 15:55:22
+2024-02-09 15:55:40 - ERROR - Skipping: 610209 for ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-02-09 15:55:44 - ERROR - Skipping: 610219 for ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-02-09 15:55:45 - ERROR - Skipping: 610221 for ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
